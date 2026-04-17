@@ -22,22 +22,64 @@ app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
 # In-memory activity database
 activities = {
     "Chess Club": {
-        "description": "Learn strategies and compete in chess tournaments",
-        "schedule": "Fridays, 3:30 PM - 5:00 PM",
-        "max_participants": 12,
-        "participants": ["michael@mergington.edu", "daniel@mergington.edu"]
+        "description": "Learn chess strategies and compete in tournaments",
+        "schedule": "Mondays and Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": []
     },
     "Programming Class": {
-        "description": "Learn programming fundamentals and build software projects",
-        "schedule": "Tuesdays and Thursdays, 3:30 PM - 4:30 PM",
-        "max_participants": 20,
-        "participants": ["emma@mergington.edu", "sophia@mergington.edu"]
+        "description": "Introduction to programming with Python",
+        "schedule": "Tuesdays and Thursdays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": []
     },
     "Gym Class": {
-        "description": "Physical education and sports activities",
-        "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
-        "max_participants": 30,
-        "participants": ["john@mergington.edu", "olivia@mergington.edu"]
+        "description": "Physical education and fitness activities",
+        "schedule": "Fridays, 2:00 PM - 4:00 PM",
+        "max_participants": 25,
+        "participants": []
+    },
+
+    # Sports
+    "Soccer Team": {
+        "description": "Practice team tactics and play matches on the school field",
+        "schedule": "Mondays and Wednesdays, 4:00 PM - 5:30 PM",
+        "max_participants": 18,
+        "participants": []
+    },
+    "Volleyball Club": {
+        "description": "Learn volleyball skills and compete in friendly games",
+        "schedule": "Tuesdays and Thursdays, 4:00 PM - 5:30 PM",
+        "max_participants": 16,
+        "participants": []
+    },
+
+    # Artistic
+    "Art Studio": {
+        "description": "Explore painting, drawing, and mixed media projects",
+        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": []
+    },
+    "Drama Club": {
+        "description": "Rehearse scenes, improvise, and prepare for a school play",
+        "schedule": "Fridays, 3:30 PM - 5:30 PM",
+        "max_participants": 20,
+        "participants": []
+    },
+
+    # Intellectual
+    "Debate Society": {
+        "description": "Develop public speaking and argumentation skills",
+        "schedule": "Thursdays, 3:30 PM - 5:00 PM",
+        "max_participants": 12,
+        "participants": []
+    },
+    "Science Olympiad": {
+        "description": "Work on science challenges and prepare for regional competitions",
+        "schedule": "Mondays, 4:00 PM - 5:30 PM",
+        "max_participants": 14,
+        "participants": []
     }
 }
 
@@ -62,6 +104,24 @@ def signup_for_activity(activity_name: str, email: str):
     # Get the specific activity
     activity = activities[activity_name]
 
+# Validate student is not already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student already signed up")                        
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.delete("/activities/{activity_name}/signup")
+def unregister_from_activity(activity_name: str, email: str):
+    """Unregister a student from an activity"""
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    activity = activities[activity_name]
+
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student not signed up")
+
+    activity["participants"].remove(email)
+    return {"message": f"Unregistered {email} from {activity_name}"}
